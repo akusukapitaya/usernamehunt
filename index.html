@@ -3,19 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Telegram USN Hunter by @piitaya</title>
+    <title>Telegram USN Hunter - Turbo Version</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
-        .status-available { color: #10B981; font-weight: bold; background-color: rgba(16, 185, 129, 0.1); }
-        .status-taken { color: #EF4444; font-weight: bold; background-color: rgba(239, 68, 68, 0.1); }
+        .status-available { color: #10B981; font-weight: bold; background-color: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3) !important; }
+        .status-taken { color: #EF4444; font-weight: bold; background-color: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.2) !important; }
     </style>
 </head>
 <body class="bg-gray-950 text-gray-100 min-h-screen font-sans">
 
     <div class="max-w-5xl mx-auto px-4 py-10">
         <header class="text-center mb-10">
-            <h1 class="text-3xl font-extrabold text-blue-400 tracking-tight">Telegram USN Hunter</h1>
-            <p class="text-gray-400 mt-2 text-sm">Pengecekan Real-Time & Akurat menggunakan Rumus Gambar</p>
+            <h1 class="text-3xl font-extrabold text-blue-400 tracking-tight">Telegram USN Hunter <span class="text-xs bg-red-500 text-white px-2 py-0.5 rounded ml-1 animate-pulse">TURBO</span></h1>
+            <p class="text-gray-400 mt-2 text-sm">Pengecekan Massal Sekaligus (Tanpa Antre Lama)</p>
         </header>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -33,8 +33,8 @@
                         <span>Semi OP (i ⇄ l)</span>
                     </label>
                     <label class="flex items-center space-x-3 cursor-pointer">
-                        <input type="checkbox" id="rule-tamhur-all" checked class="w-4 h-4 text-blue-500 rounded bg-gray-800 border-gray-700">
-                        <span class="text-yellow-400 font-medium">Tamhur Luas (a-z)</span>
+                        <input type="checkbox" id="rule-tamhur" checked class="w-4 h-4 text-blue-500 rounded bg-gray-800 border-gray-700">
+                        <span class="text-yellow-400 font-medium">Tamhur (Sisip Tengah/Akhir)</span>
                     </label>
                     <label class="flex items-center space-x-3 cursor-pointer">
                         <input type="checkbox" id="rule-ganhur" class="w-4 h-4 text-blue-500 rounded bg-gray-800 border-gray-700">
@@ -51,155 +51,9 @@
                     <input type="text" id="base-word" placeholder="Contoh: sean" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500">
                 </div>
 
-                <button id="btn-cari" class="w-full mt-5 bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2.5 px-4 rounded-lg transition shadow-lg shadow-blue-600/20">
-                    Generate & Cek Real-Time
+                <button id="btn-cari" class="w-full mt-5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold py-2.5 px-4 rounded-lg transition shadow-lg shadow-blue-600/20">
+                    ⚡ Jalankan Pengecekan Turbo
                 </button>
             </div>
 
-            <div class="md:col-span-2 bg-gray-900 p-6 rounded-2xl shadow-xl border border-gray-800">
-                <div class="flex justify-between items-center mb-4 border-b border-gray-800 pb-2">
-                    <h2 class="text-lg font-bold text-blue-300">Hasil Analisis Asli Telegram</h2>
-                    <span id="total-count" class="text-xs bg-gray-800 text-gray-400 px-2 py-1 rounded-md">0 ditemukan</span>
-                </div>
-
-                <div class="overflow-y-auto max-h-[550px] pr-2 space-y-2" id="output-list">
-                    <p class="text-gray-500 text-center py-10 text-sm">Masukkan kata dasar dan klik cari untuk memulai.</p>
-                </div>
-            </div>
-
-        </div>
-    </div>
-
-    <script>
-        document.getElementById('btn-cari').addEventListener('click', async () => {
-            const base = document.getElementById('base-word').value.trim().toLowerCase().replace(/[^a-z]/g, '');
-            const outputList = document.getElementById('output-list');
-            const totalCount = document.getElementById('total-count');
-            
-            if (!base) {
-                alert('Masukkan kata dasar (huruf a-z)!');
-                return;
-            }
-
-            outputList.innerHTML = '<p class="text-gray-400 text-center py-10 text-sm animate-pulse">Sedang meracik variasi kata...</p>';
-            
-            const opChecked = document.getElementById('rule-op').checked;
-            const sopChecked = document.getElementById('rule-sop').checked;
-            const tamhurAllChecked = document.getElementById('rule-tamhur-all').checked;
-            const ganhurChecked = document.getElementById('rule-ganhur').checked;
-            const doubleChecked = document.getElementById('rule-double').checked;
-
-            let usernames = new Set();
-            const alphabet = 'abcdefghijklmnopqrstuvwxyz';
-
-            // --- Logika Pengolahan Rumus ---
-            if (opChecked) {
-                usernames.add(base);
-                usernames.add(base + 's');
-            }
-
-            if (sopChecked) {
-                let sopWord = base;
-                if (base.includes('i')) sopWord = sopWord.replace(/i/g, 'l');
-                else if (base.includes('l')) sopWord = sopWord.replace(/l/g, 'i');
-                if (sopWord !== base) usernames.add(sopWord);
-            }
-
-            if (tamhurAllChecked) {
-                for (let i = 1; i <= base.length; i++) {
-                    for (let char of alphabet) {
-                        usernames.add(base.slice(0, i) + char + base.slice(i));
-                    }
-                }
-            }
-
-            if (ganhurChecked) {
-                for (let i = 1; i < base.length; i++) {
-                    for (let char of alphabet) {
-                        if (char !== base[i]) {
-                            usernames.add(base.slice(0, i) + char + base.slice(i + 1));
-                        }
-                    }
-                }
-            }
-
-            if (doubleChecked) {
-                for (let i = 0; i < base.length; i++) {
-                    usernames.add(base.slice(0, i + 1) + base.charAt(i) + base.slice(i + 1));
-                }
-            }
-
-            // Aturan Telegram: Minimal panjang USN publik adalah 5 huruf
-            let finalUsns = Array.from(usernames).filter(u => u.length >= 5);
-            totalCount.innerText = `${finalUsns.length} variasi dibuat`;
-
-            if (finalUsns.length === 0) {
-                outputList.innerHTML = '<p class="text-gray-500 text-center py-10 text-sm">Tidak ada variasi yang memenuhi syarat minimal 5 karakter.</p>';
-                return;
-            }
-
-            outputList.innerHTML = '';
-
-            // Tampilkan struktur antrean di layar
-            for (let usn of finalUsns) {
-                const itemDiv = document.createElement('div');
-                itemDiv.className = "flex justify-between items-center bg-gray-800/40 p-2.5 rounded-xl border border-gray-800 text-sm";
-                itemDiv.id = `box-${usn}`;
-                
-                itemDiv.innerHTML = `
-                    <span class="font-mono text-gray-200">@${usn}</span>
-                    <span class="text-xs text-gray-400 italic font-medium" id="status-${usn}">Mengantre...</span>
-                `;
-                outputList.appendChild(itemDiv);
-            }
-
-            // Jalankan pengecekan beruntun (Live Scraper)
-            for (let usn of finalUsns) {
-                const statusSpan = document.getElementById(`status-${usn}`);
-                const boxDiv = document.getElementById(`box-${usn}`);
-                if (!statusSpan) continue;
-                
-                statusSpan.innerText = "Mengecek...";
-                
-                let isAvailable = await checkLiveTelegram(usn);
-                
-                if (isAvailable) {
-                    boxDiv.classList.add('status-available', 'border-emerald-500/30');
-                    statusSpan.className = "text-emerald-400 font-bold text-xs";
-                    statusSpan.innerText = "✓ KOSONG (BISA DIPAKAI)";
-                } else {
-                    boxDiv.classList.add('status-taken', 'border-red-500/25');
-                    statusSpan.className = "text-red-400 text-xs";
-                    statusSpan.innerText = "✕ Sudah Terpakai";
-                }
-            }
-        });
-
-        // FUNGSI UTAMA: Tembus t.me/username via AllOrigins CORS Proxy
-        async function checkLiveTelegram(username) {
-            try {
-                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent('https://t.me/' + username)}`;
-                const response = await fetch(proxyUrl);
-                
-                if (!response.ok) return false;
-                
-                const data = await response.json();
-                const htmlText = data.contents;
-                
-                // Indikator Telegram jika USN tersebut tidak ada/kosong
-                if (htmlText.includes("If you have Telegram, you can contact") || htmlText.includes("tgme_page_extra")) {
-                    // Cek lebih spesifik apakah halaman berisi info user
-                    if (htmlText.includes("tgme_page_title") || htmlText.includes("View in Telegram")) {
-                        return false; // Ada pemiliknya
-                    }
-                    return true; // Benar-benar kosong
-                }
-                return true; // Bersih
-            } catch (e) {
-                console.error("Gagal melakukan bypass request:", e);
-                return false; 
-            }
-        }
-    </script>
-</body>
-</html>
+            <div class="md:col-span-2 bg-gray-900 p-6 rounded-2xl shadow-xl border border-
